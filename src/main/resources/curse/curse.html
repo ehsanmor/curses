@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to the Library</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        function getData() {
+
+            console.log('getting data...');
+
+            // Get data from backend.
+            $.ajax({
+                url: 'http://localhost:8080/api/books/all',
+                type: 'get',
+                success: function(data) {
+                    console.log('data get success');
+                    console.log(data);
+
+                    $('#books').text('');
+
+                    var bookText = 'These are all the books: ';
+
+                    // Loop over data.
+                    $.each(data, function(index, value) {
+                        console.log(value.title + ' - ' + value.author);
+                        bookText = bookText + ' ' + value.title + ' - ' + value.author + '. ';
+                    });
+
+                    $('#books').text(bookText);
+                }
+            });
+
+        }
+
+        function postData() {
+
+            console.log("posting data...");
+
+            // Check if title and author are not empty.
+            if(!$("#inputTitle").val() || !$("#inputAuthor").val()) {
+                // No value.
+                console.log("input has no value");
+                $("#error").text("Some or all input fields have no value!");
+            }
+            else {
+                $("#error").text("");
+
+                var titleFromInput = $("#inputTitle").val();
+                var authorFromInput = $("#inputAuthor").val();
+                console.log('Title ingevoerd: ' + titleFromInput);
+                console.log('Author ingevoerd: ' + authorFromInput);
+
+                // JavaScript/JQuery data to JSON.
+
+                // JavaScript variables to JavaScript Object.
+                var book = {
+                    title : titleFromInput,
+                    author : authorFromInput
+                };
+                console.log(book);
+
+                // JavaScript Object to JSON String.
+                var bookJson = JSON.stringify(book);
+                console.log(bookJson);
+
+                // Do POST request with body.
+                $.ajax({
+                    url: 'http://localhost:8080/api/books/new',
+                    type: 'post',
+                    data: bookJson,
+                    contentType: "application/json",
+                    success: function(data) {
+                        console.log('data post success');
+                        getData();
+                        // Reset form.
+                        $("#inputTitle").val('');
+                        $("#inputAuthor").val('');
+                    }
+                });
+            }
+        }
+
+        $(document).ready(function() {
+            // Do these things when the webpage is loaded.
+            getData();
+        });
+
+    </script>
+</head>
+<body>
+
+<h1>Books</h1>
+
+<label for="inputTitle">Title of Book</label></br>
+<input type="text" id="inputTitle" name="inputTitle">
+</br></br>
+<label for="inputAuthor">Author of Book</label></br>
+<input type="text" id="inputAuthor" name="inputAuthor">
+</br></br>
+<p id="error" style="color: red;" ></p>
+
+<button onclick="postData()">Post it!</button>
+</br></br>
+
+<!-- Show the book in html -->
+<p id="books">No data...</p>
+
+</body>
+</html>
